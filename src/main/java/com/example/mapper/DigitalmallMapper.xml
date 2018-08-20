@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.DigitalmallMapper">
+	
+	<resultMap id="userResultMap" type="com.example.model.User">
+		<id column="userid" property="UserId" />
+		<result column="username" property="UserName" />
+		<result column="userpwd" property="UserPwd" />
+		<result column="email" property="Email" />
+		<result column="money" property="Money" />
+	</resultMap>
+	
+	<resultMap id="messageResultMap" type="com.example.model.Message">
+		<id column="mesid" property="MesId" />
+		<result column="mesname" property="MesName" />
+		<result column="mesemail" property="MesEmail" />
+		<result column="mestext" property="Mestext" />
+	</resultMap>
+	
+	<resultMap id="userorderResultMap" type="com.example.model.UserOrder">
+		<id column="orderid" property="OrderId" />
+		<result column="orderuser" property="OrderUser" />
+		<result column="ordercomid" property="OrderComId" />
+		<result column="ordercomnm" property="OrderComNm" />
+		<result column="ordertime" property="Ordertime" />
+		<result column="orderremark" property="OrderRemark" />
+		<result column="commodity" property="Commodity" />
+	</resultMap>
+	
+	<resultMap id="helpinfoResultMap" type="com.example.model.helpinfo">
+		<id column="helpinfid" property="helpinfid" />
+		<result column="helpinfque" property="helpinfque" />
+		<result column="helpinfsol" property="helpinfsol" />
+		
+		
+	</resultMap>
+	
+	
+	<resultMap id="shoppingcartResultMap" type="com.example.model.Shoppingcart">
+		<id column="cartid" property="cartId" />
+		<result column="userid" property="UserId" />
+		<result column="comid" property="comId" />
+		<result column="comnum" property="comNum" />	
+		<result column="compri" property="compri" />
+	</resultMap>
+	
+	<resultMap id="adminResultMap" type="com.example.model.Admin">
+		<id column="adminid" property="AdminId" />
+		<result column="adminnam" property="AdminNam" />
+		<result column="adminpwd" property="AdminPwd" />
+		<result column="adminemail" property="AdminEmail" />	
+	</resultMap>
+	
+	<resultMap id="commodityResultMap" type="com.example.model.Commodity">
+		<id column="comId" property="comId" />
+		<result column="comName" property="comName" />
+		<result column="comClassid" property="comClassid" />
+		<result column="comPrice" property="comPrice" />
+		<result column="comNew" property="comNew" />
+		<result column="addTime" property="addtime" />
+		<result column="comNum" property="comNum" />
+		<result column="comSalenum" property="comSalenum" />
+		<result column="comDes" property="comDes" />
+		<result column="comOff" property="comOff" />
+		<result column="comColor" property="comColor" />
+		<result column="comphoto" property="comphoto" />
+		
+	</resultMap>
+	
+	<!-- 登录操作 -->
+	<select id="login" resultMap="userResultMap"  parameterType="com.example.model.User" >
+		select * from user where username=#{arg0} and userpwd=#{arg1} 
+	</select>
+	
+	<!-- 管理员登录操作 -->
+	<select id="admlogin" resultMap="adminResultMap"  parameterType="com.example.model.Admin" >
+		select * from user where adminnam=#{arg0} and adminpwd=#{arg1} 
+	</select>
+	
+	<!-- 注册操作 -->
+	<insert id="sign" parameterType="com.example.model.User" useGeneratedKeys="true" keyProperty="userid">
+		insert into user(username, userpwd,email) values(#{UserName},#{UserPwd},#{Email})
+	</insert>
+	
+	<!-- 注册操作验证用户名 -->
+	<select id="ckname" resultMap="userResultMap"  parameterType="com.example.model.User" >
+		select * from user where username=#{arg0} 
+	</select>
+	
+	<!-- 忘记密码操作验证邮箱-->
+	<select id="ckemail" resultMap="userResultMap"  parameterType="com.example.model.User" >
+		select * from user where email=#{arg0} 
+	</select>
+	
+	<!--忘记密码操作重置密码-->
+	<update id="updatepwd" parameterType="com.example.model.User">
+		update user set userpwd=#{arg0} where email=#{arg1}
+	</update>
+	
+	<!-- 留言操作 -->
+	<insert id="message" parameterType="com.example.model.Message" useGeneratedKeys="true" keyProperty="mesid">
+		insert into message(mesname, mestext,mesemail) values(#{MesName},#{Mestext},#{MesEmail})
+	</insert>
+	
+	<!-- 订单生成 -->
+	<insert id="addorder" parameterType="com.example.model.UserOrder" useGeneratedKeys="true" keyProperty="orderid">
+		insert into userorder(orderuser, ordercomid,ordercomnm,orderpri) values(#{orderuser},#{ordercomid},#{ordercomnm},#{orderpri})
+	</insert>
+	
+	<!-- 查看订单 -->
+	<select id="myorder" resultMap="userorderResultMap"  parameterType="com.example.model.UserOrder" >
+		select u.orderuser,u.orderid,u.ordertime,c.comName,u.ordercomnm,u.orderpri,u.orderremark 
+		from userorder u 
+		left outer join commodity c on c.comid=u.ordercomid
+		left outer join user s on s.userid=u.orderuser
+		where username=#{arg0} 
+	</select>
+	
+	<!-- 搜索订单 -->
+	<select id="seorder" resultMap="userorderResultMap"  parameterType="com.example.model.UserOrder" >
+		select u.orderuser,u.orderid,u.ordertime,c.comName,u.ordercomnm,u.orderpri,u.orderremark 
+		from userorder u 
+		left outer join commodity c on c.comid=u.ordercomid
+		left outer join user s on s.userid=u.orderuser
+		where username=#{arg0} and comName=#{arg1}
+	</select>
+	
+	<!-- 钱包操作 -->
+	<select id="wallet" resultMap="userResultMap"  parameterType="com.example.model.User" >
+		select money from user where username=#{arg0}
+	</select>
+	
+	<!-- 查询用户ID -->
+	<select id="findid" resultMap="userResultMap"  parameterType="String" >
+		select userid from user where username=#{arg0}
+	</select>
+	
+	<!-- 查询所有商品 -->
+	<select id="findAllcommodity" resultMap="commodityResultMap">
+		select comId, comName,comClassid,
+				comPrice, comNew, addTime, comNum,
+				comSalenum, comDes,comOff, comColor,comphoto from commodity
+	</select>
+	
+	<!-- 添加购物车操作 -->
+	<insert id="cartadd" parameterType="com.example.model.Shoppingcart" useGeneratedKeys="true" keyProperty="cartid">
+		insert into shoppingcart(userid, comid,comnum,compri) values(#{UserId},#{comId},#{comNum},#{compri})
+	</insert>
+	
+	<!--购物车数量加操作 -->
+	<update id="cartnum" parameterType="com.example.model.Shoppingcart">
+		update shoppingcart set comnum=#{comNum} where comid=#{comId}
+	</update>
+	
+	<!-- 我的购物车 -->
+	<select id="showcart" resultMap="shoppingcartResultMap"  parameterType="com.example.model.Shoppingcart" >
+		select c.comName,s.comnum,s.compri,(s.compri*s.comnum) totalprice,c.comid
+		from commodity c 
+		left outer join shoppingcart s on c.comid=s.comid
+		left outer join user u on u.userid=s.userid
+		where username=#{arg0} 
+	</select>
+	
+	<!-- 查询购物车单个商品 -->
+	<select id="findcom" resultMap="shoppingcartResultMap"  parameterType="String">
+		select comnum from shoppingcart where comid =#{arg0}
+	</select>
+	
+	<!-- 购物车移除商品 -->
+	<update id="removecart" parameterType="int">
+		delete from shoppingcart where comid=#{comid};
+	</update>
+	
+	<!-- 清空购物车 -->
+	<update id="cartempty" parameterType="String">
+		delete  s.*
+		from shoppingcart s,user u
+		WHERE u.userid=s.userid
+		and username=#{arg0}
+	</update>
+	
+	<!-- 搜索产品 -->
+	<select id="searchcommodity" parameterType="java.lang.String" resultMap="commodityResultMap">
+		select comId, comName,comClassid,
+				comPrice, comNew, addTime, comNum,
+				comSalenum, comDes,comOff, comColor,comphoto from commodity where comName like#{search}
+	</select>
+	
+	<!-- 搜索产品（header） -->
+	<select id="headsearchcommodity" parameterType="java.lang.String" resultMap="commodityResultMap">
+		select comId, comName,comClassid,
+				comPrice, comNew, addTime, comNum,
+				comSalenum, comDes,comOff, comColor,comphoto from commodity where comClassid=#{type}
+	</select>
+	
+	<!-- 帮助信息查询 -->
+	<select id="seachhelpinfo"  parameterType="java.lang.String" resultMap="helpinfoResultMap">
+		select helpinfid, helpinfque,helpinfsol from helpinf where helpinfque like #{search}
+	</select>
+
+	<!-- 管理员登录操作 -->
+	<select id="Adlogin" resultMap="adminResultMap"  parameterType="com.example.model.Admin" >
+		select * from admin where AdminNam=#{arg0} and AdminPwd=#{arg1} 
+	</select>
+	
+	<!--后台添加商品 -->
+	<insert id="addcom" parameterType="com.example.model.Commodity" useGeneratedKeys="true" keyProperty="comid">
+		insert into Commodity(comname, comclassid,comprice,comnew,addTime,comnum,comsalenum,comdes,comcolor,comphoto) 
+		values(#{comName},#{comClassid},#{comPrice},#{comNew},#{addtime},#{comNum},#{comSalenum},#{comDes},#{comColor},#{comphoto})
+	</insert>
+	
+	<!--后台更新商品 -->
+	<update id="updatecom" parameterType="com.example.model.Commodity">
+		update Commodity set comname=#{comName},comclassid=#{comClassid},comprice=#{comPrice},comnew=#{comNew},comnum=#{comNum},
+		comsalenum=#{comSalenum},comdes=#{comDes}, comphoto=#{comphoto},addTime=#{addtime} where comid=#{comId}
+	</update>
+	
+	<!--后台删除商品 -->
+	<update id="deletecom" parameterType="int">
+		delete from Commodity where comid=#{id};
+	</update>
+	
+	<!--后台查找用户 -->
+	<select id="finduser" resultMap="userResultMap" parameterType="com.example.model.User">
+		select * from user
+	</select>
+	
+	<!--后台删除用户 -->
+	<update id="deleteuser1" parameterType="int">
+		delete from user where userid=#{id};
+	</update>
+	
+	<!-- 充值操作 -->
+	<update id="addmoney" parameterType="int">
+		update user set Money=Money+#{arg1} where UserId=#{arg0};
+	</update>
+	
+</mapper>
